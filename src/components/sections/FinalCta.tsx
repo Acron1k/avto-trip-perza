@@ -14,6 +14,10 @@ import { TRIP } from "@/content/trip";
  * Крупный вопрос, таймер до старта, сводка цифр.
  */
 
+// Фон финального экрана. Впиши путь к фото, например ["/photos/final.jpg"].
+// Пока пусто — показывается плейсхолдер. Можно несколько — будет слайдер.
+const FINAL_PHOTOS: string[] = [];
+
 const SUMMARY = [
   { value: TRIP.totalKm.toLocaleString("ru-RU"), label: "километров" },
   { value: String(TRIP.days), label: "дней" },
@@ -31,6 +35,7 @@ export function FinalCta() {
       <div className="absolute inset-0 -z-10">
         <PhotoSlot
           caption="Эльбрус на закате или компания друзей на смотровой — финальный кадр"
+          photos={FINAL_PHOTOS}
           search="Caucasus mountains golden hour"
           className="h-full w-full"
         />

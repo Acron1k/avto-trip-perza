@@ -11,6 +11,10 @@ import { TRIP } from "@/content/trip";
  * крупный засечковый заголовок, сводка маршрута, индикатор скролла.
  */
 
+// Фон героя. Впиши сюда путь к фото, например ["/photos/hero-elbrus.jpg"].
+// Пока пусто — показывается плейсхолдер. Можно несколько — будет слайдер.
+const HERO_PHOTOS: string[] = [];
+
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
@@ -33,6 +37,7 @@ export function Hero() {
       <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10 scale-110">
         <PhotoSlot
           caption="Эльбрус с двуглавой вершиной — с плато Бермамыт на рассвете или закате"
+          photos={HERO_PHOTOS}
           search="Mount Elbrus Bermamyt sunrise"
           className="h-full w-full"
         />

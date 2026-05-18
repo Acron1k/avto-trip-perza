@@ -100,6 +100,11 @@ export interface TripDay {
   km?: number;
   /** Подпись к фото-плейсхолдеру: что искать */
   photo: string;
+  /**
+   * Пути к фото дня в public/, например ["/photos/day-01-a.jpg"].
+   * Пока пусто — рендерится плейсхолдер. Несколько путей → слайдер.
+   */
+  photos?: string[];
   activities: DayActivity[];
   /** Где ночуем этим вечером */
   sleep: string;

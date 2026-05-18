@@ -11,6 +11,11 @@ export interface ReasonCard {
   title: string;
   text: string;
   photo: string;
+  /**
+   * Пути к фото в public/, например ["/photos/why-elbrus.jpg"].
+   * Пока пусто — рендерится плейсхолдер. Несколько путей → слайдер.
+   */
+  photos?: string[];
 }
 
 export const REASONS: ReasonCard[] = [

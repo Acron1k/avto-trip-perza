@@ -59,6 +59,7 @@ export function DayCard({ day, isLast }: { day: TripDay; isLast: boolean }) {
           {/* Фото */}
           <PhotoSlot
             caption={day.photo}
+            photos={day.photos}
             className="h-52 w-full md:h-full md:min-h-[16rem]"
           />
 

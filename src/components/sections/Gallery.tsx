@@ -30,6 +30,7 @@ export function Gallery() {
                 <div className="relative">
                   <PhotoSlot
                     caption={item.photo}
+                    photos={item.photos}
                     search={item.search}
                     className="h-52 w-full"
                     compact

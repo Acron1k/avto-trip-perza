@@ -37,6 +37,7 @@ export function Why() {
             <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-ink-card transition-all duration-300 hover:-translate-y-1 hover:border-ember/40 hover:shadow-2xl hover:shadow-black/40">
               <PhotoSlot
                 caption={lead.photo}
+                photos={lead.photos}
                 className="h-64 w-full lg:h-[22rem]"
               />
               <div className="flex flex-1 flex-col p-7">
@@ -56,6 +57,7 @@ export function Why() {
               <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-ink-soft transition-all duration-300 hover:-translate-y-1 hover:border-ember/40 hover:shadow-xl hover:shadow-black/40">
                 <PhotoSlot
                   caption={reason.photo}
+                  photos={reason.photos}
                   className="h-40 w-full"
                   compact
                 />
