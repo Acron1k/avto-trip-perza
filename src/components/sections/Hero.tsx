@@ -13,7 +13,12 @@ import { TRIP } from "@/content/trip";
 
 // Фон героя. Впиши сюда путь к фото, например ["/photos/hero-elbrus.jpg"].
 // Пока пусто — показывается плейсхолдер. Можно несколько — будет слайдер.
-const HERO_PHOTOS: string[] = [];
+const HERO_PHOTOS: string[] = [
+  "/photos/hero-1.jpg",
+  "/photos/hero-4.jpg",
+  "/photos/hero-2.jpg",
+  "/photos/hero-3.jpg",
+];
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);

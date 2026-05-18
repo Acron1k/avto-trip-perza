@@ -16,7 +16,11 @@ import { TRIP } from "@/content/trip";
 
 // Фон финального экрана. Впиши путь к фото, например ["/photos/final.jpg"].
 // Пока пусто — показывается плейсхолдер. Можно несколько — будет слайдер.
-const FINAL_PHOTOS: string[] = [];
+const FINAL_PHOTOS: string[] = [
+  "/photos/final-2.jpg",
+  "/photos/final-3.jpg",
+  "/photos/final-1.jpg",
+];
 
 const SUMMARY = [
   { value: TRIP.totalKm.toLocaleString("ru-RU"), label: "километров" },
