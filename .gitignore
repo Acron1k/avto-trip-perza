@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# служебные папки инструментов разработки — в репозиторий не нужны
+/.gsd/
+/.bg-shell/

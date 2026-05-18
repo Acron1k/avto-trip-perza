@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
+/*
+ * ДИЗАЙН-СИСТЕМА «Кавказ-2026»
+ * Вайб: горный экспедиционный журнал — National Geographic / Patagonia.
+ * Тёмная графит-синяя база, закатный оранж — доминирующий акцент.
+ * Шрифты подключаются в layout.tsx через next/font (Fraunces + Manrope).
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Базовые фоны */
+  --ink: #0c1a27;          /* основной фон — графит-синий, темнее брифового */
+  --ink-soft: #11242f;     /* приподнятые блоки */
+  --ink-card: #16303d;     /* карточки */
+
+  /* Текст */
+  --paper-fg: #f3eee3;     /* основной светлый текст — тёплый кремовый */
+  --muted: #8aa0ad;        /* приглушённый серо-синий */
+
+  /* Акценты */
+  --ember: #e8794a;        /* закатный оранж — доминанта */
+  --ember-bright: #f4905f; /* осветлённый оранж для hover */
+  --pine: #4a8a73;         /* горный изумруд — вторичный акцент */
+
+  /* Линии и тени */
+  --hairline: rgba(243, 238, 227, 0.12);
+  --hairline-strong: rgba(243, 238, 227, 0.22);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-card: var(--ink-card);
+  --color-paper: var(--paper-fg);
+  --color-muted: var(--muted);
+  --color-ember: var(--ember);
+  --color-ember-bright: var(--ember-bright);
+  --color-pine: var(--pine);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-manrope);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--hairline);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--paper-fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Зернистая текстура поверх всего — атмосфера плёнки */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Заголовки — засечковый Fraunces */
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+/* Утилита: тонкая надстрочная метка-капс */
+.eyebrow {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ember);
+}
+
+/* Числа в одну ширину — для цифр бюджета и счётчиков */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Кастомный скроллбар */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-card);
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ember);
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--ink);
+}
+
+/* Уважаем prefers-reduced-motion — отключаем тяжёлую анимацию */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Плейсхолдер изображений — рамка с подписью «нужно фото» */
+.photo-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(135deg, var(--ink-soft) 0%, var(--ink-card) 100%);
+  border: 1px dashed var(--hairline-strong);
+  overflow: hidden;
+}
+.photo-slot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 14px,
+    rgba(232, 121, 74, 0.04) 14px,
+    rgba(232, 121, 74, 0.04) 28px
+  );
 }

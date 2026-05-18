@@ -1,36 +1,177 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Кавказ-2026 — сайт-презентация поездки
 
-## Getting Started
+Лендинг автопутешествия из Екатеринбурга на Северный Кавказ: 1–12 июля 2026,
+маршрут Кавминводы → Эльбрус → Архыз. Делался как презентация для вечера, где
+идею защищают перед друзьями — поэтому в конце не форма заявки, а эмоциональный
+финал с таймером.
 
-First, run the development server:
+**Стек:** Next.js 15 (App Router, TypeScript), Tailwind CSS v4, Framer Motion,
+шрифты через `next/font`. Хостинг — Vercel.
+
+---
+
+## Как запустить локально
+
+Нужен установленный [Node.js](https://nodejs.org) версии 18.18 или новее.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install      # один раз — поставит зависимости
+npm run dev      # запустит сайт для разработки
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Открой в браузере `http://localhost:3000`. Страница сама обновляется при
+сохранении файлов.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Проверить production-сборку:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build    # собирает оптимизированную версию
+npm run start    # запускает собранную версию
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 1. Как добавить фото
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Сейчас на месте всех фотографий — рамки-плейсхолдеры с подписью «нужно фото:
+…». Это специально: подпись говорит, что именно искать.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Где брать фото бесплатно и легально: **Unsplash**, **Pexels**, **Wikimedia
+Commons**. Для удобства в коде рядом с подписью указан английский поисковый
+запрос. Нельзя брать фото с водяными знаками, из Shutterstock/Getty без покупки.
 
-## Deploy on Vercel
+**Шаг 1.** Положи картинку в папку `public/photos/`
+(создай папку, если её нет). Например: `public/photos/elbrus-hero.jpg`.
+Лучше формат `.webp` или `.avif`, минимум 1600 px по длинной стороне.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Шаг 2.** Найди нужный плейсхолдер. Они все — компонент `<PhotoSlot>` в файлах
+секций (`src/components/sections/`). Найти проще всего по тексту подписи.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Шаг 3.** Замени `<PhotoSlot>` на `<Image>` из Next.js. Было:
+
+```tsx
+<PhotoSlot caption="нужно фото: ..." className="h-52 w-full" />
+```
+
+Стало:
+
+```tsx
+import Image from "next/image";
+
+<Image
+  src="/photos/elbrus-hero.jpg"
+  alt="Эльбрус с плато Бермамыт"
+  width={1600}
+  height={900}
+  className="h-52 w-full object-cover"
+/>
+```
+
+`next/image` сам сожмёт картинку и подгрузит её только когда нужно — за
+производительность можно не переживать.
+
+> Можно заменять не все фото сразу. Плейсхолдеры и настоящие фото спокойно
+> живут на сайте вместе.
+
+---
+
+## 2. Как менять контент (текст, цифры, маршрут)
+
+**Весь текст вынесен в отдельные файлы — лазить в код секций не нужно.**
+Папка `src/content/`:
+
+| Файл          | Что внутри                                                  |
+|---------------|-------------------------------------------------------------|
+| `trip.ts`     | Общие цифры поездки, машины и экипажи, 12 дней маршрута      |
+| `gallery.ts`  | Карточки секции «Что увидим»                                |
+| `budget.ts`   | Цены, уровни (эконом/комфорт/бизнес), формулы калькулятора   |
+| `misc.ts`     | «Зачем туда», FAQ, чек-лист «что брать», «где что купить»    |
+
+Открываешь нужный файл, находишь текст или цифру, меняешь, сохраняешь — сайт
+обновится сам. Структура внутри подписана комментариями.
+
+Примеры частых правок:
+
+- **Поменять состав машины** → `src/content/trip.ts`, массив `CARS`.
+- **Изменить цену бензина** → `src/content/budget.ts`, константа `FUEL_PRICE`.
+- **Добавить день или точку «по желанию рядом»** → `src/content/trip.ts`,
+  массив `DAYS` (у дня есть поле `sidePoints`).
+- **Поправить ответ в FAQ** → `src/content/misc.ts`, массив `FAQ`.
+
+---
+
+## 3. Как задеплоить и обновлять деплой
+
+Сайт уже подключён к репозиторию `github.com/Acron1k/avto-trip-perza`.
+
+### Первый деплой на Vercel
+
+1. Зайди на [vercel.com](https://vercel.com), войди через GitHub.
+2. Нажми **Add New… → Project**, выбери репозиторий `avto-trip-perza`.
+3. Vercel сам определит, что это Next.js. Ничего настраивать не надо —
+   жми **Deploy**.
+4. Через минуту получишь рабочий адрес вида `avto-trip-perza.vercel.app`.
+
+### Обновление сайта
+
+После первого деплоя всё работает автоматически: **любой коммит в ветку
+`main` на GitHub Vercel сам подхватит и пересоберёт сайт.**
+
+```bash
+git add .
+git commit -m "поправил текст в FAQ"
+git push
+```
+
+Через минуту изменения уже на боевом сайте. Заходить в Vercel не нужно.
+
+> Если меняешь домен на свой — это делается в настройках проекта на Vercel,
+> раздел **Settings → Domains**. После смены домена поправь `SITE_URL`
+> в `src/app/layout.tsx`, чтобы корректно работало превью в мессенджерах.
+
+---
+
+## Структура проекта
+
+```
+src/
+  app/
+    layout.tsx        — шрифты, SEO-метаданные, фавикон
+    page.tsx          — сборка всех секций в один скролл
+    globals.css       — дизайн-система: палитра, типографика
+    og/route.tsx      — картинка для превью в мессенджерах (рисуется кодом)
+  content/            — ВЕСЬ ТЕКСТ И ЦИФРЫ (см. раздел 2)
+  components/
+    sections/         — 11 секций сайта
+    *.tsx             — переиспользуемые детали (карточка дня, таймер и т.д.)
+public/
+  favicon.svg         — иконка-гора во вкладке браузера
+```
+
+---
+
+## Откуда цифры
+
+Все расстояния, цены канаток и заброcок выверены веб-ресёрчем в мае 2026.
+Часть цифр отличается от первоначального брифа — в пользу актуальных:
+
+- Канатка Эльбрус Азау→Гарабаши — **1400 ₽** (в брифе было 2500).
+- Заброска на Софийские озёра — **~9000 ₽ за машину** (≈1500 ₽/чел),
+  это дороже брифовых 3500 ₽.
+- Перегон Екатеринбург→Самара — **~970 км** (в брифе 1100).
+
+**Цена бензина АИ-95 заложена 62 ₽/л** по просьбе заказчика. Для справки:
+средняя по России в мае 2026 была около 68–69 ₽/л — перед поездкой стоит
+свериться и при необходимости поднять `FUEL_PRICE` в `src/content/budget.ts`.
+
+Расход топлива считается отдельно по машинам: Changan Qiyuan A06 — 4.5 л/100 км
+(с запасом на горы и кондиционер), Tenet T7 — 8.5 л/100 км.
+
+Перед выездом все цифры имеет смысл сверить ещё раз — цены на канатки и
+заброски меняются от сезона к сезону.
+
+---
+
+## Что не вошло и осталось в бэклоге
+
+См. файл [`TODO.md`](./TODO.md).
