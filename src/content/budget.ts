@@ -11,8 +11,8 @@
 
 import { CARS, TRIP } from "./trip";
 
-/** Цена литра АИ-95, ₽. Задана заказчиком (средняя по РФ в мае 2026 — ~68 ₽). */
-export const FUEL_PRICE = 62;
+/** Цена литра АИ-95, ₽. Задана заказчиком (фактическая цена по трассе, май 2026 — 67–69 ₽). */
+export const FUEL_PRICE = 68;
 
 /** Уровни поездки */
 export type Tier = "economy" | "comfort" | "business";
@@ -64,30 +64,54 @@ export const TIERS: TierConfig[] = [
   },
 ];
 
+/** Сколько человек минимум и максимум есть смысл сажать в одну машину */
+export const SEATS_MIN = 1;
+export const SEATS_MAX = 5;
+
 /**
  * Расход топлива на одну машину за всю поездку (туда-обратно).
- * Возвращает литры, рубли на машину и рубли на одного пассажира.
+ * Бензин на машину фиксированный — он не зависит от числа людей в салоне;
+ * меняется только сумма на одного пассажира при делении на `people`.
+ *
+ * @param people сколько человек делят бак. По умолчанию — штатный экипаж машины.
  */
-export function fuelForCar(carId: string, fuelPrice = FUEL_PRICE) {
+export function fuelForCar(
+  carId: string,
+  people?: number,
+  fuelPrice = FUEL_PRICE,
+) {
   const car = CARS.find((c) => c.id === carId);
   if (!car) throw new Error(`Машина ${carId} не найдена`);
+  const seats = clampSeats(people ?? car.crew.length);
   const liters = (TRIP.totalKm * car.consumption) / 100;
   const rubles = Math.round(liters * fuelPrice);
-  const seats = car.crew.length;
   return {
     car,
+    seats,
     liters: Math.round(liters),
     rublesPerCar: rubles,
     rublesPerPerson: Math.round(rubles / seats),
   };
 }
 
+/** Удерживает число пассажиров в осмысленном диапазоне */
+export function clampSeats(n: number) {
+  return Math.min(SEATS_MAX, Math.max(SEATS_MIN, Math.round(n)));
+}
+
 /**
  * Полный бюджет на одного человека для конкретной машины и уровня.
+ *
+ * @param people сколько человек делят бензин этой машины (влияет только на топливо).
  */
-export function budgetPerPerson(carId: string, tier: Tier, fuelPrice = FUEL_PRICE) {
+export function budgetPerPerson(
+  carId: string,
+  tier: Tier,
+  people?: number,
+  fuelPrice = FUEL_PRICE,
+) {
   const config = TIERS.find((t) => t.id === tier)!;
-  const fuel = fuelForCar(carId, fuelPrice).rublesPerPerson;
+  const fuel = fuelForCar(carId, people, fuelPrice).rublesPerPerson;
   const lodging = config.lodgingPerNight * NIGHTS;
   const food = config.foodPerDay * TRIP.days;
   const total = fuel + lodging + food + config.activities + config.reserve;

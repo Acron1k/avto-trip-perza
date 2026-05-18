@@ -10,8 +10,11 @@ import {
   type Tier,
   budgetPerPerson,
   fuelForCar,
+  clampSeats,
   COMPARISON,
   FUEL_PRICE,
+  SEATS_MIN,
+  SEATS_MAX,
 } from "@/content/budget";
 
 /**
@@ -26,10 +29,24 @@ const ruble = (n: number) => `${n.toLocaleString("ru-RU")} ₽`;
 export function Budget() {
   const [tier, setTier] = useState<Tier>("comfort");
   const [carId, setCarId] = useState<string>(CARS[2].id); // по умолчанию Чанган
+  const [seats, setSeats] = useState<number>(CARS[2].crew.length);
 
-  const result = useMemo(() => budgetPerPerson(carId, tier), [carId, tier]);
-  const fuel = useMemo(() => fuelForCar(carId), [carId]);
+  // Смена машины сбрасывает число пассажиров к её штатному экипажу
+  const selectCar = (id: string) => {
+    setCarId(id);
+    setSeats(CARS.find((c) => c.id === id)!.crew.length);
+  };
+  const changeSeats = (delta: number) =>
+    setSeats((s) => clampSeats(s + delta));
+
+  const result = useMemo(
+    () => budgetPerPerson(carId, tier, seats),
+    [carId, tier, seats],
+  );
+  const fuel = useMemo(() => fuelForCar(carId, seats), [carId, seats]);
   const activeCar = CARS.find((c) => c.id === carId)!;
+  const peopleWord =
+    seats === 1 ? "человек" : seats >= 2 && seats <= 4 ? "человека" : "человек";
 
   const rows = [
     { label: "Бензин", value: result.fuel, note: `${activeCar.model}, на одного` },
@@ -82,7 +99,7 @@ export function Budget() {
               <button
                 key={car.id}
                 type="button"
-                onClick={() => setCarId(car.id)}
+                onClick={() => selectCar(car.id)}
                 aria-pressed={carId === car.id}
                 className={`rounded-xl border px-4 py-2.5 text-left transition-all ${
                   carId === car.id
@@ -98,6 +115,48 @@ export function Budget() {
                 </span>
               </button>
             ))}
+          </div>
+        </Reveal>
+
+        {/* Сколько человек делят машину */}
+        <Reveal className="mt-6" delay={0.12}>
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-hairline bg-ink-soft px-5 py-4">
+            <div>
+              <p className="text-sm font-semibold text-paper">
+                Сколько человек в машине
+              </p>
+              <p className="mt-0.5 text-xs text-muted">
+                Бензин делится на всех — чем больше народу, тем дешевле каждому.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => changeSeats(-1)}
+                disabled={seats <= SEATS_MIN}
+                aria-label="Убрать одного человека"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-hairline-strong text-xl font-semibold text-paper transition-all hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-hairline-strong disabled:hover:text-paper"
+              >
+                −
+              </button>
+              <motion.span
+                key={seats}
+                initial={{ opacity: 0.4, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="tnum w-16 text-center font-display text-2xl font-semibold text-paper"
+              >
+                {seats}
+              </motion.span>
+              <button
+                type="button"
+                onClick={() => changeSeats(1)}
+                disabled={seats >= SEATS_MAX}
+                aria-label="Добавить одного человека"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-hairline-strong text-xl font-semibold text-paper transition-all hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-hairline-strong disabled:hover:text-paper"
+              >
+                +
+              </button>
+            </div>
           </div>
         </Reveal>
 
@@ -159,9 +218,15 @@ export function Budget() {
                   <span className="tnum font-semibold text-paper">
                     {fuel.liters} л
                   </span>{" "}
-                  ({ruble(fuel.rublesPerCar)} на машину) на{" "}
-                  {activeCar.crew.length}{" "}
-                  {activeCar.crew.length === 4 ? "человек" : "человека"}.
+                  ({ruble(fuel.rublesPerCar)} на машину). Делим на{" "}
+                  <span className="tnum font-semibold text-paper">
+                    {seats}
+                  </span>{" "}
+                  {peopleWord} —{" "}
+                  <span className="tnum font-semibold text-ember">
+                    {ruble(fuel.rublesPerPerson)}
+                  </span>{" "}
+                  с каждого.
                 </p>
                 {activeCar.note && (
                   <p className="mt-2 text-xs leading-relaxed text-muted/80">
