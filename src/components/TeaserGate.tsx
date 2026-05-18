@@ -12,8 +12,10 @@ import {
  * Тизер-гейт.
  *
  * Оборачивает весь сайт: до ввода кода контент заблюрен (класс
- * `teaser-blurred`, см. globals.css), поверх висит плавающая модалка
- * с инструкцией отправить SMS и полем для кода.
+ * `teaser-blurred`, см. globals.css). Сайт при этом можно скроллить —
+ * блюр только мешает читать детали. В левом верхнем углу плавает
+ * компактная плашка с инструкцией отправить SMS и полем для кода;
+ * её можно свернуть в маленькую кнопку, чтобы не загораживала контент.
  *
  * Это интрига для друзей, а НЕ защита: код лежит в бандле, заблюренный
  * текст виден в исходнике страницы. Для розыгрыша на вечере этого хватает.
@@ -40,9 +42,11 @@ function normalize(value: string): string {
 
 export function TeaserGate({ children }: { children: React.ReactNode }) {
   // null — ещё не прочитали localStorage (SSR / первый кадр).
-  // Пока null — рендерим контент БЕЗ блюра и без модалки, чтобы не
+  // Пока null — рендерим контент БЕЗ блюра и без плашки, чтобы не
   // мигало на тех, кто уже разблокировал.
   const [unlocked, setUnlocked] = useState<boolean | null>(null);
+  // Плашка свёрнута в маленькую кнопку или развёрнута в карточку.
+  const [open, setOpen] = useState(true);
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,17 +60,6 @@ export function TeaserGate({ children }: { children: React.ReactNode }) {
       setUnlocked(false);
     }
   }, []);
-
-  // Пока модалка видна — блокируем скролл фона
-  useEffect(() => {
-    if (unlocked === false) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = prev;
-      };
-    }
-  }, [unlocked]);
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
@@ -96,121 +89,156 @@ export function TeaserGate({ children }: { children: React.ReactNode }) {
       <div
         className={locked ? "teaser-blurred" : undefined}
         // когда заблюрено — прячем от скринридеров, чтобы не зачитывали кашу.
-        // pointer-events:none в .teaser-blurred блокирует клики по контенту.
+        // pointer-events:none в .teaser-blurred блокирует клики по контенту,
+        // но скролл страницы при этом работает.
         aria-hidden={locked || undefined}
       >
         {children}
       </div>
 
       {locked && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center px-5 py-8"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="teaser-title"
-        >
-          {/* затемнение поверх блюра — модалка читается чётко */}
-          <div className="absolute inset-0 bg-ink/55" aria-hidden="true" />
+        <div className="fixed left-3 top-3 z-[200] sm:left-5 sm:top-5">
+          {open ? (
+            <div className="w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-hairline-strong bg-ink-soft/95 shadow-2xl backdrop-blur-md">
+              {/* акцентная полоса сверху */}
+              <div className="h-1 w-full bg-ember" aria-hidden="true" />
 
-          <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-hairline-strong bg-ink-soft shadow-2xl">
-            {/* акцентная полоса сверху */}
-            <div className="h-1 w-full bg-ember" aria-hidden="true" />
-
-            <div className="px-6 py-7 sm:px-8 sm:py-9">
-              <p className="eyebrow">Закрытый показ</p>
-
-              <h2
-                id="teaser-title"
-                className="font-display mt-2 text-2xl font-semibold leading-tight text-paper sm:text-3xl"
-              >
-                Что-то готовится.
-                <br />
-                Хочешь увидеть?
-              </h2>
-
-              <p className="mt-3 text-sm leading-relaxed text-muted">
-                Этим летом мы кое-куда едем. Вся идея — за этим экраном.
-                Чтобы снять блюр, напиши нам — пришлём код.
-              </p>
-
-              {/* Шаг 1 — отправить SMS */}
-              <div className="mt-6 rounded-xl border border-hairline bg-ink-card px-4 py-4">
-                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ember">
-                  Шаг 1 — напиши нам
-                </p>
-                <p className="mt-2 text-sm text-paper">
-                  Отправь SMS со словами{" "}
-                  <span className="font-semibold text-ember">
-                    «{SMS_TEXT}»
-                  </span>{" "}
-                  на номер:
-                </p>
-                <a
-                  href={smsHref}
-                  className="mt-2 inline-flex items-center gap-2 font-display text-lg font-semibold text-paper transition-colors hover:text-ember"
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                  {SMS_NUMBER_HUMAN}
-                </a>
-                <p className="mt-1 text-xs text-muted">
-                  С телефона ссылка откроет сообщения с готовым текстом.
-                </p>
-              </div>
-
-              {/* Шаг 2 — ввести код */}
-              <form onSubmit={handleSubmit} className="mt-4">
-                <label
-                  htmlFor="teaser-code"
-                  className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ember"
-                >
-                  Шаг 2 — введи код
-                </label>
-                <div className="mt-2 flex gap-2">
-                  <input
-                    id="teaser-code"
-                    ref={inputRef}
-                    type="text"
-                    value={code}
-                    onChange={(e) => {
-                      setCode(e.target.value);
-                      if (error) setError(false);
-                    }}
-                    placeholder="код из ответа"
-                    autoComplete="off"
-                    aria-invalid={error}
-                    aria-describedby={error ? "teaser-error" : undefined}
-                    className="min-w-0 flex-1 rounded-lg border border-hairline-strong bg-ink px-3 py-2.5 text-paper outline-none transition-colors placeholder:text-muted/60 focus:border-ember"
-                  />
+              <div className="px-4 py-4 sm:px-5 sm:py-5">
+                {/* шапка плашки: метка + кнопка свернуть */}
+                <div className="flex items-start justify-between gap-3">
+                  <p className="eyebrow">Закрытый показ</p>
                   <button
-                    type="submit"
-                    className="shrink-0 rounded-lg bg-ember px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-ember-bright"
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    aria-label="Свернуть плашку"
+                    className="-mr-1 -mt-1 shrink-0 rounded-md p-1 text-muted transition-colors hover:text-paper"
                   >
-                    Открыть
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M5 12h14" />
+                    </svg>
                   </button>
                 </div>
-                {error && (
-                  <p
-                    id="teaser-error"
-                    className="mt-2 text-sm text-ember-bright"
-                  >
-                    Код не подошёл. Проверь раскладку и попробуй ещё раз.
+
+                <h2 className="font-display mt-1 text-xl font-semibold leading-tight text-paper">
+                  Что-то готовится. Хочешь увидеть?
+                </h2>
+
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  Этим летом мы кое-куда едем. Вся идея — под блюром.
+                  Чтобы снять его, напиши нам — пришлём код.
+                </p>
+
+                {/* Шаг 1 — отправить SMS */}
+                <div className="mt-4 rounded-xl border border-hairline bg-ink-card px-3 py-3">
+                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ember">
+                    Шаг 1 — напиши нам
                   </p>
-                )}
-              </form>
+                  <p className="mt-1.5 text-sm text-paper">
+                    SMS со словами{" "}
+                    <span className="font-semibold text-ember">
+                      «{SMS_TEXT}»
+                    </span>{" "}
+                    на номер:
+                  </p>
+                  <a
+                    href={smsHref}
+                    className="mt-1.5 inline-flex items-center gap-2 font-display text-base font-semibold text-paper transition-colors hover:text-ember"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    {SMS_NUMBER_HUMAN}
+                  </a>
+                </div>
+
+                {/* Шаг 2 — ввести код */}
+                <form onSubmit={handleSubmit} className="mt-3">
+                  <label
+                    htmlFor="teaser-code"
+                    className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ember"
+                  >
+                    Шаг 2 — введи код
+                  </label>
+                  <div className="mt-1.5 flex gap-2">
+                    <input
+                      id="teaser-code"
+                      ref={inputRef}
+                      type="text"
+                      value={code}
+                      onChange={(e) => {
+                        setCode(e.target.value);
+                        if (error) setError(false);
+                      }}
+                      placeholder="код из ответа"
+                      autoComplete="off"
+                      aria-invalid={error}
+                      aria-describedby={error ? "teaser-error" : undefined}
+                      className="min-w-0 flex-1 rounded-lg border border-hairline-strong bg-ink px-3 py-2 text-paper outline-none transition-colors placeholder:text-muted/60 focus:border-ember"
+                    />
+                    <button
+                      type="submit"
+                      className="shrink-0 rounded-lg bg-ember px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-ember-bright"
+                    >
+                      Открыть
+                    </button>
+                  </div>
+                  {error && (
+                    <p
+                      id="teaser-error"
+                      className="mt-2 text-sm text-ember-bright"
+                    >
+                      Код не подошёл. Проверь раскладку.
+                    </p>
+                  )}
+                </form>
+              </div>
             </div>
-          </div>
+          ) : (
+            // свёрнутое состояние — компактная кнопка-«ключ»
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="flex items-center gap-2 rounded-full border border-hairline-strong bg-ink-soft/95 px-4 py-2.5 text-sm font-semibold text-paper shadow-2xl backdrop-blur-md transition-colors hover:border-ember"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="text-ember"
+              >
+                <circle cx="7.5" cy="15.5" r="5.5" />
+                <path d="m21 2-9.6 9.6" />
+                <path d="m15.5 7.5 3 3L22 7l-3-3" />
+              </svg>
+              Снять блюр
+            </button>
+          )}
         </div>
       )}
     </>
