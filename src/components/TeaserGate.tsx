@@ -130,56 +130,44 @@ export function TeaserGate({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <h2 className="font-display mt-1 text-xl font-semibold leading-tight text-paper">
-                  Что-то готовится. Хочешь увидеть?
+                  Что-то готовится…
                 </h2>
 
                 <p className="mt-2 text-sm leading-relaxed text-muted">
-                  Этим летом мы кое-куда едем. Вся идея — под блюром.
-                  Чтобы снять его, напиши нам — пришлём код.
+                  Хочешь увидеть? Отправь SMS со словами{" "}
+                  <span className="font-semibold text-ember">
+                    «{SMS_TEXT}»
+                  </span>{" "}
+                  и введи код из ответа.
                 </p>
 
-                {/* Шаг 1 — отправить SMS */}
-                <div className="mt-4 rounded-xl border border-hairline bg-ink-card px-3 py-3">
-                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ember">
-                    Шаг 1 — напиши нам
-                  </p>
-                  <p className="mt-1.5 text-sm text-paper">
-                    SMS со словами{" "}
-                    <span className="font-semibold text-ember">
-                      «{SMS_TEXT}»
-                    </span>{" "}
-                    на номер:
-                  </p>
-                  <a
-                    href={smsHref}
-                    className="mt-1.5 inline-flex items-center gap-2 font-display text-base font-semibold text-paper transition-colors hover:text-ember"
+                {/* кнопка отправки SMS */}
+                <a
+                  href={smsHref}
+                  className="mt-3 inline-flex items-center gap-2 font-display text-base font-semibold text-paper transition-colors hover:text-ember"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
                   >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                    {SMS_NUMBER_HUMAN}
-                  </a>
-                </div>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  {SMS_NUMBER_HUMAN}
+                </a>
 
-                {/* Шаг 2 — ввести код */}
+                {/* поле кода */}
                 <form onSubmit={handleSubmit} className="mt-3">
-                  <label
-                    htmlFor="teaser-code"
-                    className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ember"
-                  >
-                    Шаг 2 — введи код
+                  <label htmlFor="teaser-code" className="sr-only">
+                    Код из ответа
                   </label>
-                  <div className="mt-1.5 flex gap-2">
+                  <div className="flex gap-2">
                     <input
                       id="teaser-code"
                       ref={inputRef}
