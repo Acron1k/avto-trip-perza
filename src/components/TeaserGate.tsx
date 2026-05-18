@@ -96,6 +96,11 @@ export function TeaserGate({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
+      {/* Рамка цвета фона перекрывает светлую кайму, которую blur()
+          размывает по краям вьюпорта. Рендерится ВНЕ .teaser-blurred,
+          поэтому сама не блюрится и не зависит от containing block. */}
+      {locked && <div className="teaser-edge-mask" aria-hidden="true" />}
+
       {locked && (
         <div className="fixed left-3 top-3 z-[200] sm:left-5 sm:top-5">
           {open ? (
