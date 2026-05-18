@@ -122,6 +122,17 @@ export const GALLERY: GalleryItem[] = [
     search: "Lik Hrista Arkhyz rock face",
   },
   {
+    id: "arkhyz",
+    name: "Курорт Архыз",
+    region: "Карачаево-Черкесия",
+    text:
+      "Зелёная долина в окружении хребтов, где у каждого свой маршрут: канатки и трассы, конные тропы, обзорные поляны над посёлком. База, с которой расходятся почти все радиалки.",
+    photo: "нужно фото: панорама долины Архыза с зелёными хребтами",
+    photos: ["/photos/arkhyz-2.jpg", "/photos/arkhyz-1.jpg"],
+    search: "Arkhyz valley resort green mountains",
+    fact: "1450 м",
+  },
+  {
     id: "chegem-gorge",
     name: "Чегемское ущелье",
     region: "Кабардино-Балкария",
