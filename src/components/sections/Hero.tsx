@@ -41,7 +41,7 @@ export function Hero() {
       {/* Фоновое фото */}
       <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10 scale-110">
         <PhotoSlot
-          caption="Эльбрус с двуглавой вершиной — с плато Бермамыт на рассвете или закате"
+          caption="Эльбрус с двуглавой вершиной на рассвете"
           photos={HERO_PHOTOS}
           search="Mount Elbrus Bermamyt sunrise"
           className="h-full w-full"
@@ -75,7 +75,7 @@ export function Hero() {
           Кавказ.
           <br />
           Это лето.{" "}
-          <span className="italic text-ember">На наших машинах.</span>
+          <span className="italic text-ember">На машинах.</span>
         </motion.h1>
 
         <motion.p

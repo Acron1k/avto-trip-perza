@@ -38,7 +38,7 @@ export function FinalCta() {
       {/* Фон */}
       <div className="absolute inset-0 -z-10">
         <PhotoSlot
-          caption="Эльбрус на закате или компания друзей на смотровой — финальный кадр"
+          caption="Кавказ на закате"
           photos={FINAL_PHOTOS}
           search="Caucasus mountains golden hour"
           className="h-full w-full"
