@@ -36,10 +36,10 @@ export function Hero() {
   return (
     <section
       ref={ref}
-      className="relative flex h-[100svh] min-h-[640px] items-center justify-center overflow-hidden"
+      className="relative isolate flex h-[100svh] min-h-[640px] items-center justify-center overflow-hidden"
     >
       {/* Фоновое фото */}
-      <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10 scale-110">
+      <motion.div style={{ y: bgY }} className="absolute inset-0 z-0 scale-110">
         <PhotoSlot
           caption="Эльбрус с двуглавой вершиной на рассвете"
           photos={HERO_PHOTOS}
@@ -49,8 +49,8 @@ export function Hero() {
       </motion.div>
 
       {/* Затемнение для читаемости текста */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-ink/70 via-ink/40 to-ink" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/60 to-transparent" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-ink/70 via-ink/40 to-ink" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-ink/60 to-transparent" />
 
       {/* Контент */}
       <motion.div

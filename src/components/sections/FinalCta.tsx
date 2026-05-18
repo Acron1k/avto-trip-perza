@@ -33,10 +33,10 @@ export function FinalCta() {
   return (
     <section
       id="final"
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-6 py-24"
+      className="relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden px-6 py-24"
     >
       {/* Фон */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 z-0">
         <PhotoSlot
           caption="Кавказ на закате"
           photos={FINAL_PHOTOS}
@@ -44,7 +44,7 @@ export function FinalCta() {
           className="h-full w-full"
         />
       </div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-ink via-ink/80 to-ink" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-ink via-ink/80 to-ink" />
 
       <div className="relative z-10 mx-auto w-full max-w-3xl text-center">
         <Reveal>
