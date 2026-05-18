@@ -1,5 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { TeaserGate } from "@/components/TeaserGate";
 import { Hero } from "@/components/sections/Hero";
 import { Why } from "@/components/sections/Why";
 import { RouteMap } from "@/components/sections/RouteMap";
@@ -18,7 +19,7 @@ import { FinalCta } from "@/components/sections/FinalCta";
  */
 export default function Home() {
   return (
-    <>
+    <TeaserGate>
       <span id="top" />
       <Nav />
       <main>
@@ -35,6 +36,6 @@ export default function Home() {
         <FinalCta />
       </main>
       <Footer />
-    </>
+    </TeaserGate>
   );
 }
