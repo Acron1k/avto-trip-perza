@@ -11,10 +11,14 @@ import {
   budgetPerPerson,
   fuelForCar,
   clampSeats,
+  clampConsumption,
   COMPARISON,
   FUEL_PRICE,
   SEATS_MIN,
   SEATS_MAX,
+  CONSUMPTION_MIN,
+  CONSUMPTION_MAX,
+  CONSUMPTION_STEP,
 } from "@/content/budget";
 
 /**
@@ -30,21 +34,52 @@ export function Budget() {
   const [tier, setTier] = useState<Tier>("comfort");
   const [carId, setCarId] = useState<string>(CARS[2].id); // по умолчанию Чанган
   const [seats, setSeats] = useState<number>(CARS[2].crew.length);
+  // Расход топлива выбранной машины — редактируется на странице.
+  // Дефолт берётся из CARS, при смене машины подставляется её штатный расход.
+  const [consumption, setConsumption] = useState<number>(CARS[2].consumption);
+  // Сырой текст поля ввода — чтобы можно было стереть и набрать заново
+  const [consumptionInput, setConsumptionInput] = useState<string>(
+    String(CARS[2].consumption),
+  );
 
-  // Смена машины сбрасывает число пассажиров к её штатному экипажу
+  // Смена машины сбрасывает число пассажиров и расход к её штатным значениям
   const selectCar = (id: string) => {
+    const car = CARS.find((c) => c.id === id)!;
     setCarId(id);
-    setSeats(CARS.find((c) => c.id === id)!.crew.length);
+    setSeats(car.crew.length);
+    setConsumption(car.consumption);
+    setConsumptionInput(String(car.consumption));
   };
   const changeSeats = (delta: number) =>
     setSeats((s) => clampSeats(s + delta));
 
+  // Степпер расхода: меняем и значение, и текст поля синхронно
+  const changeConsumption = (delta: number) => {
+    const next = clampConsumption(consumption + delta);
+    setConsumption(next);
+    setConsumptionInput(String(next));
+  };
+  // Ввод вручную: пока печатают — храним сырой текст, не ломая расчёт
+  const onConsumptionInput = (raw: string) => {
+    setConsumptionInput(raw);
+    const parsed = Number(raw.replace(",", "."));
+    if (Number.isFinite(parsed) && raw.trim() !== "") {
+      setConsumption(clampConsumption(parsed));
+    }
+  };
+  // Уход с поля — нормализуем текст под фактическое (зажатое) значение
+  const onConsumptionBlur = () => setConsumptionInput(String(consumption));
+
   const result = useMemo(
-    () => budgetPerPerson(carId, tier, seats),
-    [carId, tier, seats],
+    () => budgetPerPerson(carId, tier, seats, consumption),
+    [carId, tier, seats, consumption],
   );
-  const fuel = useMemo(() => fuelForCar(carId, seats), [carId, seats]);
+  const fuel = useMemo(
+    () => fuelForCar(carId, seats, consumption),
+    [carId, seats, consumption],
+  );
   const activeCar = CARS.find((c) => c.id === carId)!;
+  const consumptionEdited = consumption !== activeCar.consumption;
   const peopleWord =
     seats === 1 ? "человек" : seats >= 2 && seats <= 4 ? "человека" : "человек";
 
@@ -160,6 +195,67 @@ export function Budget() {
           </div>
         </Reveal>
 
+        {/* Расход топлива — редактируется вручную */}
+        <Reveal className="mt-4" delay={0.13}>
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-hairline bg-ink-soft px-5 py-4">
+            <div>
+              <p className="text-sm font-semibold text-paper">
+                Расход {activeCar.model}
+              </p>
+              <p className="mt-0.5 text-xs text-muted">
+                Сколько литров на 100 км — итог пересчитается сразу.
+                {consumptionEdited && (
+                  <>
+                    {" "}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConsumption(activeCar.consumption);
+                        setConsumptionInput(String(activeCar.consumption));
+                      }}
+                      className="font-semibold text-ember underline-offset-2 hover:underline"
+                    >
+                      Вернуть {activeCar.consumption}
+                    </button>
+                  </>
+                )}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => changeConsumption(-CONSUMPTION_STEP)}
+                disabled={consumption <= CONSUMPTION_MIN}
+                aria-label="Уменьшить расход"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-hairline-strong text-xl font-semibold text-paper transition-all hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-hairline-strong disabled:hover:text-paper"
+              >
+                −
+              </button>
+              <div className="flex items-baseline gap-1">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={consumptionInput}
+                  onChange={(e) => onConsumptionInput(e.target.value)}
+                  onBlur={onConsumptionBlur}
+                  aria-label="Расход топлива, литров на 100 км"
+                  className="tnum w-14 rounded-lg border border-hairline-strong bg-ink-card px-2 py-1.5 text-center font-display text-2xl font-semibold text-paper outline-none transition-colors focus:border-ember"
+                />
+                <span className="text-xs text-muted">л</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => changeConsumption(CONSUMPTION_STEP)}
+                disabled={consumption >= CONSUMPTION_MAX}
+                aria-label="Увеличить расход"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-hairline-strong text-xl font-semibold text-paper transition-all hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-hairline-strong disabled:hover:text-paper"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </Reveal>
+
         {/* Расклад */}
         <Reveal className="mt-8" delay={0.15}>
           <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
@@ -212,7 +308,7 @@ export function Budget() {
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   {activeCar.model} — расход{" "}
                   <span className="font-semibold text-paper">
-                    {activeCar.consumption} л/100&nbsp;км
+                    {fuel.consumption} л/100&nbsp;км
                   </span>
                   . За поездку это{" "}
                   <span className="tnum font-semibold text-paper">

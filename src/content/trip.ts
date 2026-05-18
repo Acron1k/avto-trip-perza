@@ -45,14 +45,14 @@ export const CARS: Car[] = [
   {
     id: "tenet-1",
     model: "Tenet T7",
-    consumption: 8.5,
+    consumption: 7.5,
     crew: ["Денис", "Настя"],
     freeSeats: 0,
   },
   {
     id: "tenet-2",
     model: "Tenet T7",
-    consumption: 8.5,
+    consumption: 7.5,
     crew: ["Владик", "Марина"],
     freeSeats: 0,
   },
@@ -61,8 +61,7 @@ export const CARS: Car[] = [
     model: "Changan Qiyuan A06",
     consumption: 4.5,
     crew: ["Данил", "Маша", "Дима", "Ксюша"],
-    freeSeats: 1,
-    note: "Гибрид. На трассе едет на бензине — расход 4.5 л заложен с запасом на горы и кондиционер.",
+    freeSeats: 0,
   },
 ];
 

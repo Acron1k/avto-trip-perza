@@ -15,12 +15,41 @@ interface Spot {
   region: string;
   lat: number;
   lon: number;
+  /** Климатическая норма начала июля: типичные дневная и ночная температуры */
+  julyDay: number;
+  julyNight: number;
+  /** Короткая характеристика погоды начала июля в этой точке */
+  julyNote: string;
 }
 
 const SPOTS: Spot[] = [
-  { city: "Пятигорск", region: "база Кавминвод", lat: 44.04, lon: 43.06 },
-  { city: "Терскол", region: "Приэльбрусье", lat: 43.26, lon: 42.51 },
-  { city: "Архыз", region: "финальная база", lat: 43.56, lon: 41.27 },
+  {
+    city: "Пятигорск",
+    region: "база Кавминвод",
+    lat: 44.04,
+    lon: 43.06,
+    julyDay: 29,
+    julyNight: 17,
+    julyNote: "Тепло и солнечно, к полудню жарко",
+  },
+  {
+    city: "Терскол",
+    region: "Приэльбрусье",
+    lat: 43.26,
+    lon: 42.51,
+    julyDay: 20,
+    julyNight: 9,
+    julyNote: "Горная прохлада, на канатке около нуля",
+  },
+  {
+    city: "Архыз",
+    region: "финальная база",
+    lat: 43.56,
+    lon: 41.27,
+    julyDay: 23,
+    julyNight: 11,
+    julyNote: "Днём комфортно, вечером свежо",
+  },
 ];
 
 interface WeatherData {
@@ -107,47 +136,90 @@ export function Weather() {
     };
   }, []);
 
-  // Если API недоступен — секцию не показываем вовсе (фича необязательная)
-  if (failed) return null;
-
   return (
     <section id="weather" className="relative px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-5xl">
         <SectionHeading
-          eyebrow="Прямо сейчас"
+          eyebrow="Погода"
           title="Какая там погода"
-          intro="Текущая температура в трёх точках маршрута — обновляется при каждом заходе. Просто чтобы почувствовать масштаб: пока ты читаешь это в Екатеринбурге."
+          intro="Сверху — что в этих местах прямо сейчас, пока ты читаешь это в Екатеринбурге. Снизу — чего ждать на старте поездки, в первых числах июля."
         />
 
-        <Reveal className="mt-10" delay={0.05}>
+        {/* Текущая погода — прячется, только если API не ответил */}
+        {!failed && (
+          <Reveal className="mt-10" delay={0.05}>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">
+              Прямо сейчас
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {SPOTS.map((spot) => {
+                const w = data[spot.city];
+                const d = w ? describe(w.code) : null;
+                return (
+                  <div
+                    key={spot.city}
+                    className="flex items-center justify-between rounded-2xl border border-hairline bg-ink-card px-5 py-5"
+                  >
+                    <div>
+                      <p className="font-display text-lg font-medium text-paper">
+                        {spot.city}
+                      </p>
+                      <p className="text-xs text-muted">{spot.region}</p>
+                      <p className="mt-1 text-xs text-muted">
+                        {d ? d.label : "загрузка…"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {d && <WeatherIcon icon={d.icon} />}
+                      <span className="font-display tnum text-3xl font-semibold text-paper">
+                        {w ? `${w.temp > 0 ? "+" : ""}${w.temp}°` : "··"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Reveal>
+        )}
+
+        {/* Прогноз на начало июля — климатическая норма, всегда виден */}
+        <Reveal className="mt-10" delay={0.1}>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ember">
+            На старте поездки · начало июля
+          </p>
           <div className="grid gap-4 sm:grid-cols-3">
-            {SPOTS.map((spot) => {
-              const w = data[spot.city];
-              const d = w ? describe(w.code) : null;
-              return (
-                <div
-                  key={spot.city}
-                  className="flex items-center justify-between rounded-2xl border border-hairline bg-ink-card px-5 py-5"
-                >
+            {SPOTS.map((spot) => (
+              <div
+                key={spot.city}
+                className="rounded-2xl border border-hairline bg-ink-card px-5 py-5"
+              >
+                <div className="flex items-start justify-between">
                   <div>
                     <p className="font-display text-lg font-medium text-paper">
                       {spot.city}
                     </p>
                     <p className="text-xs text-muted">{spot.region}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      {d ? d.label : "загрузка…"}
-                    </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {d && <WeatherIcon icon={d.icon} />}
-                    <span className="font-display tnum text-3xl font-semibold text-paper">
-                      {w ? `${w.temp > 0 ? "+" : ""}${w.temp}°` : "··"}
+                  <div className="text-right">
+                    <span className="font-display tnum text-3xl font-semibold text-ember">
+                      +{spot.julyDay}°
                     </span>
+                    <p className="text-xs text-muted">днём</p>
                   </div>
                 </div>
-              );
-            })}
+                <div className="mt-3 flex items-center justify-between border-t border-hairline pt-3">
+                  <p className="text-xs text-muted">{spot.julyNote}</p>
+                  <span className="tnum whitespace-nowrap text-xs font-semibold text-paper">
+                    ночью +{spot.julyNight}°
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
+          <p className="mt-3 text-xs text-muted/70">
+            Это средние температуры начала июля по многолетним наблюдениям —
+            точный прогноз появится ближе к выезду.
+          </p>
         </Reveal>
       </div>
     </section>
