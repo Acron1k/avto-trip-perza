@@ -6,13 +6,22 @@ import { Stagger, StaggerItem } from "../Reveal";
 import { REASONS } from "@/content/misc";
 
 /**
- * «Зачем мы туда» — 5 карточек-аргументов.
+ * «Зачем мы туда» — карточки-аргументы (см. REASONS в content/misc.ts).
  * Первая карточка крупная (занимает 2 колонки), остальные обычные —
  * асимметричный editorial-грид.
  */
 
+// Числительное по количеству карточек — чтобы заголовок не расходился с данными
+const COUNT_WORD: Record<number, string> = {
+  4: "Четыре",
+  5: "Пять",
+  6: "Шесть",
+  7: "Семь",
+};
+
 export function Why() {
   const [lead, ...rest] = REASONS;
+  const countWord = COUNT_WORD[REASONS.length] ?? String(REASONS.length);
 
   return (
     <section id="why" className="relative px-6 py-24 sm:py-32">
@@ -21,11 +30,11 @@ export function Why() {
           eyebrow="Зачем вообще ехать"
           title={
             <>
-              Пять причин сказать{" "}
+              {countWord} причин сказать{" "}
               <span className="italic text-ember">«да»</span>
             </>
           }
-          intro="Не «уникальная возможность» и не «незабываемое путешествие». Просто пять конкретных вещей, ради которых стоит потратить отпуск именно так."
+          intro="Не «уникальная возможность» и не «незабываемое путешествие». Просто конкретные вещи, ради которых стоит потратить отпуск именно так."
         />
 
         <Stagger className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

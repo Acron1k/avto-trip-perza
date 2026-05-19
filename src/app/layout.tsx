@@ -1,12 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Playfair_Display, Manrope } from "next/font/google";
 import "./globals.css";
 
-/** Засечковый дисплейный шрифт для заголовков — характерный, «журнальный» */
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+/**
+ * Засечковый дисплейный шрифт для заголовков — характерный, «журнальный».
+ * Playfair Display: transitional serif с высоким контрастом штрихов.
+ * ВАЖНО: подключён с кириллицей — заголовки сайта русские. Fraunces,
+ * стоявший здесь раньше, кириллицу не поддерживает и падал на Georgia.
+ */
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
 });
@@ -77,7 +82,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${fraunces.variable} ${manrope.variable} h-full antialiased`}
+      className={`${playfair.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

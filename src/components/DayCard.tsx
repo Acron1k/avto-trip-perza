@@ -145,8 +145,11 @@ export function DayCard({ day, isLast }: { day: TripDay; isLast: boolean }) {
                   className="flex w-full items-center justify-between gap-2 rounded-lg border border-hairline bg-ink-soft px-3.5 py-2.5 text-left text-xs font-semibold text-paper transition-colors hover:border-ember/40"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-ember">+</span>
-                    По желанию рядом · {day.sidePoints!.length}
+                    <span className="w-2 text-center text-ember">
+                      {open ? "−" : "+"}
+                    </span>
+                    {open ? "Свернуть" : "По желанию рядом"} ·{" "}
+                    {day.sidePoints!.length}
                   </span>
                   <motion.svg
                     animate={{ rotate: open ? 180 : 0 }}

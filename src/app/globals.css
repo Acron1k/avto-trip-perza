@@ -4,7 +4,8 @@
  * ДИЗАЙН-СИСТЕМА «Кавказ-2026»
  * Вайб: горный экспедиционный журнал — National Geographic / Patagonia.
  * Тёмная графит-синяя база, закатный оранж — доминирующий акцент.
- * Шрифты подключаются в layout.tsx через next/font (Fraunces + Manrope).
+ * Шрифты подключаются в layout.tsx через next/font:
+ *   Playfair Display (заголовки, кириллица) + Manrope (текст, кириллица).
  */
 
 :root {
@@ -37,7 +38,7 @@
   --color-ember-bright: var(--ember-bright);
   --color-pine: var(--pine);
 
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-playfair);
   --font-sans: var(--font-manrope);
 }
 
@@ -72,10 +73,9 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Заголовки — засечковый Fraunces */
+/* Заголовки — засечковый Playfair Display (с кириллицей) */
 .font-display {
-  font-family: var(--font-display), Georgia, serif;
-  font-optical-sizing: auto;
+  font-family: var(--font-display), "Times New Roman", Georgia, serif;
 }
 
 /* Утилита: тонкая надстрочная метка-капс */
